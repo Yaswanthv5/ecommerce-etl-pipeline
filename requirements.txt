@@ -1,0 +1,5 @@
+apache-airflow-providers-google
+pyspark # Or your Spark version
+pytest
+google-cloud-storage
+dbt-bigquery

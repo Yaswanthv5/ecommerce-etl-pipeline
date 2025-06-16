@@ -1,0 +1,14 @@
+ecom_dwh:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: [your-gcp-project-id]
+      dataset: ecom_data_warehouse # Your target dataset
+      threads: 4
+      keyfile: /path/to/your/gcp/service-account-key.json # Make sure this path is accessible by dbt (e.g., in CI/CD runner)
+      # or if running locally with gcloud auth:
+      # method: oauth
+      # project: [your-gcp-project-id]
+      # dataset: ecom_data_warehouse

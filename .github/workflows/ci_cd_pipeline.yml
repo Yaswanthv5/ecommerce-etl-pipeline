@@ -1,0 +1,134 @@
+name: Data Pipeline CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'databricks_notebooks/**'
+      - 'dbt_project/**'
+      - 'dags/**'
+      - 'tests/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'spark_scripts/**'
+      - 'dbt_project/**'
+      - 'dags/**'
+      - 'tests/**'
+
+env:
+  GCP_PROJECT_ID: your-gcp-project-id # Replace with your GCP Project ID
+  GCS_DAGS_BUCKET: your-project-id-airflow-dags # Create a GCS bucket for Airflow DAGs
+  GCS_SPARK_SCRIPTS_BUCKET: your-project-id-spark-scripts # Create a GCS bucket for Spark scripts/jars
+  # You'll need to set up GCP_SA_KEY as a GitHub Secret
+  # Go to your GitHub repo settings -> Secrets -> Actions -> New repository secret
+  # Name: GCP_SA_KEY, Value: content of your GCP service account JSON key file (base64 encoded if issues, but usually plain JSON works)
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt # Include pytest, pyspark, google-cloud-storage, dbt-bigquery
+
+      - name: Authenticate GCP Service Account
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Download Spark Jars (if needed for local testing/linting)
+        # For actual Spark runs on Databricks/Dataproc, jars are handled there.
+        # This is more for ensuring file existence if your local tests need them.
+        run: |
+          mkdir -p spark_jars
+          # gsutil cp gs://your-project-id-spark-jars/gcs-connector-hadoop3-latest.jar spark_jars/
+          # gsutil cp gs://your-project-id-spark-jars/spark-bigquery-with-dependencies_2.12-latest.jar spark_jars/
+
+      - name: Run Pytest for Spark
+        run: |
+          pytest tests/spark/
+
+      - name: Configure dbt profiles.yml
+        env:
+          GCP_SA_KEY_FILE: ${{ runner.tempDir }}/gcp_sa_key.json
+        run: |
+          echo '${{ secrets.GCP_SA_KEY }}' > "${GCP_SA_KEY_FILE}"
+          mkdir -p ~/.dbt/
+          cat <<EOF > ~/.dbt/profiles.yml
+          ecom_dwh:
+            target: dev
+            outputs:
+              dev:
+                type: bigquery
+                method: service-account
+                project: ${{ env.GCP_PROJECT_ID }}
+                dataset: ecom_data_warehouse
+                threads: 4
+                keyfile: ${GCP_SA_KEY_FILE}
+          EOF
+
+      - name: Install dbt dependencies
+        run: |
+          cd dbt_project
+          dbt deps
+
+      - name: Run dbt debug and parse (CI - syntax and basic config check)
+        run: |
+          cd dbt_project
+          dbt debug --profile ecom_dwh --target dev
+          dbt parse --profile ecom_dwh --target dev
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_test
+    if: github.ref == 'refs/heads/main' # Deploy only on merge to main
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate GCP Service Account
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Upload Airflow DAGs to GCS
+        run: |
+          gsutil rsync -r dags/ gs://${{ env.GCS_DAGS_BUCKET }}/dags/
+
+      - name: Upload Spark Scripts to GCS
+        run: |
+          gsutil rsync -r spark_scripts/ gs://${{ env.GCS_SPARK_SCRIPTS_BUCKET }}/spark_scripts/
+
+      - name: Configure dbt profiles.yml for deployment
+        env:
+          GCP_SA_KEY_FILE: ${{ runner.tempDir }}/gcp_sa_key.json
+        run: |
+          echo '${{ secrets.GCP_SA_KEY }}' > "${GCP_SA_KEY_FILE}"
+          mkdir -p ~/.dbt/
+          cat <<EOF > ~/.dbt/profiles.yml
+          ecom_dwh:
+            target: prod # You might have a separate 'prod' target with different dataset
+            outputs:
+              prod:
+                type: bigquery
+                method: service-account
+                project: ${{ env.GCP_PROJECT_ID }}
+                dataset: ecom_data_warehouse # Or ecom_data_warehouse_prod
+                threads: 4
+                keyfile: ${GCP_SA_KEY_FILE}
+          EOF
+
+      - name: Run dbt build (run and test) on main merge
+        run: |
+          cd dbt_project
+          dbt build --profile ecom_dwh --target prod # Use 'build' to run and test
