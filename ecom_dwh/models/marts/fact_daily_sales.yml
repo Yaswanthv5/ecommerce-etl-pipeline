@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: fact_daily_sales
+    description: "Aggregated daily sales facts"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        tests:
+          - not_null
+      - name: order_date
+        tests:
+          - not_null
+          - dbt_utils.not_future_date # Requires dbt-utils package
+      - name: original_order_total
+        tests:
+          - not_null
+          - positive_values # Custom test (see below)
+      - name: calculated_order_total
+        tests:
+          - not_null
+          - positive_values
+      - name: total_amount_mismatch_flag
+        tests:
+          - dbt_utils.expression_is_true: # Custom test for data quality
+              expression: "not total_amount_mismatch_flag"
+              # This test ensures that the mismatch flag is always FALSE (no significant discrepancies)
+    tests:
+      - dbt_utils.at_least_one_row # Ensure the table is not empty
+      - dbt_utils.recency:
+          field: order_date
+          date_grain: day
+          interval: 2 # Ensure data is recent (e.g., within 2 days)

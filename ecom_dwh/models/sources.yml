@@ -1,0 +1,11 @@
+# models/sources.yml
+version: 2
+
+sources:
+  - name: ecom_data_warehouse
+    database: batch-processing-de
+    schema: ecom_dwh
+    tables:
+      - name: sales_fact
+      - name: products_dim
+      - name: customers_dim # Assuming this is also loaded by Spark

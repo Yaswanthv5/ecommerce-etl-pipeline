@@ -13,15 +13,15 @@ on:
     branches:
       - main
     paths:
-      - 'spark_scripts/**'
+      - 'databricks_notebooks/**'
       - 'dbt_project/**'
       - 'dags/**'
       - 'tests/**'
 
 env:
-  GCP_PROJECT_ID: your-gcp-project-id # Replace with your GCP Project ID
-  GCS_DAGS_BUCKET: your-project-id-airflow-dags # Create a GCS bucket for Airflow DAGs
-  GCS_SPARK_SCRIPTS_BUCKET: your-project-id-spark-scripts # Create a GCS bucket for Spark scripts/jars
+  GCP_PROJECT_ID: batch-processing-de # Replace with your GCP Project ID
+  GCS_DAGS_BUCKET: gs://batch-processing-de_dags/ # Create a GCS bucket for Airflow DAGs
+  GCS_SPARK_SCRIPTS_BUCKET: gs://batch-processing-de_databricks/ # Create a GCS bucket for Spark scripts/jars
   # You'll need to set up GCP_SA_KEY as a GitHub Secret
   # Go to your GitHub repo settings -> Secrets -> Actions -> New repository secret
   # Name: GCP_SA_KEY, Value: content of your GCP service account JSON key file (base64 encoded if issues, but usually plain JSON works)
@@ -47,14 +47,6 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Download Spark Jars (if needed for local testing/linting)
-        # For actual Spark runs on Databricks/Dataproc, jars are handled there.
-        # This is more for ensuring file existence if your local tests need them.
-        run: |
-          mkdir -p spark_jars
-          # gsutil cp gs://your-project-id-spark-jars/gcs-connector-hadoop3-latest.jar spark_jars/
-          # gsutil cp gs://your-project-id-spark-jars/spark-bigquery-with-dependencies_2.12-latest.jar spark_jars/
-
       - name: Run Pytest for Spark
         run: |
           pytest tests/spark/
@@ -73,7 +65,7 @@ jobs:
                 type: bigquery
                 method: service-account
                 project: ${{ env.GCP_PROJECT_ID }}
-                dataset: ecom_data_warehouse
+                dataset: ecom_dwh
                 threads: 4
                 keyfile: ${GCP_SA_KEY_FILE}
           EOF

@@ -6,7 +6,7 @@
   "token_url": "https://sts.googleapis.com/v1/token",
   "service_account_impersonation_url": "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/data-pipeline@batch-processing-de.iam.gserviceaccount.com:generateAccessToken",
   "credential_source": {
-    "file": "	gs://databricks-3880456105588946-unitycatalog/3880456105588946",
+    "file": "gs://databricks-3880456105588946-unitycatalog/3880456105588946",
     "format": {
       "type": "json",
       "subject_token_field_name": "access_token"
