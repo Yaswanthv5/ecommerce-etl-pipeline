@@ -93,19 +93,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Configure Databricks
-        env:
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS }}
-          DATABRICKS_HOST: ${{ secrets.DB_HOST }}
-        run: |
-          mkdir -p ~/.databricks
-          echo "[default]" > ~/.databrickscfg
-          echo "host = ${{env.DATABRICKS_HOST}}" > ~/.databrickscfg
-          echo "token = ${{env.DATABRICKS_TOKEN}}" > ~/.databrickscfg
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Setup Databricks
+        uses: databricks/setup-cli@main
 
       - name: Deploy notebooks to Databricks
         run: |
           databricks workspace import_dir . /Users/yaswanthreddyvarikuti66@gmail.com/ecommerce-etl-pipeline/databricks_notebooks
+        env:
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS }}
 
       - uses: actions/checkout@v4
 
