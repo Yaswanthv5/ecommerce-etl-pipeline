@@ -152,6 +152,7 @@ def test_silver_layer_sales_join(spark):
             col("total_amount_mismatch_flag")
         )
 
+
     # Assert: Expected output
     expected_data = [
         (1, 101, "John", "Doe", "john@example.com", "USA", date(2022,1,1), date(2023,1,1), "COMPLETED", 100.00, 100.00, 2, 3, False),
