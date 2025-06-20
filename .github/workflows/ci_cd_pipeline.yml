@@ -93,11 +93,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Authenticate with Databricks
+      - name: Configure Databricks
         env:
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS }}
+          DATABRICKS_HOST: ${{ secrets.DB_HOST }}
         run: |
-          databricks configure --token $DATABRICKS_TOKEN
+          mkdir -p ~/.databricks
+          echo "[default]" > ~/.databrickscfg
+          echo "host = ${{env.DATABRICKS_HOST}}" > ~/.databrickscfg
+          echo "token = ${{env.DATABRICKS_TOKEN}}" > ~/.databrickscfg
 
       - name: Deploy notebooks to Databricks
         run: |
