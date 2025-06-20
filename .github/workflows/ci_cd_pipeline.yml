@@ -103,7 +103,7 @@ jobs:
 
       - name: Deploy notebooks to Databricks
         run: |
-          databricks workspace import_dir . /Users/yaswanthreddyvarikuti66@gmail.com/ecommerce-etl-pipeline/databricks_notebooks
+          databricks workspace import-dir ./databricks_notebooks /Users/yaswanthreddyvarikuti66@gmail.com/ecommerce-etl-pipeline/databricks_notebooks --overwrite
         env:
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS }}
 
