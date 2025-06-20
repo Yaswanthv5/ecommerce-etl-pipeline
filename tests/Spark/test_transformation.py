@@ -1,7 +1,8 @@
 import pytest
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, DateType
-from pyspark.sql.functions import col, to_date
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, DateType, BooleanType
+from pyspark.sql.functions import col, to_date, when
+from datetime import date
 
 # Assuming your Spark transformation logic is in a separate module/function for reusability
 # For example, if 01_extract_and_clean.py had a function like `clean_orders_data(spark_session, input_df)`
@@ -40,15 +41,18 @@ def test_clean_orders_data(spark):
     df_cleaned = df_raw.select(
         col("order_id").cast(IntegerType()).alias("order_id"),
         col("customer_id").cast(IntegerType()).alias("customer_id"),
-        to_date(col("order_date"), "yyyy-MM-dd").alias("order_date"),
+        when(
+            col("order_date").rlike(r"\d{4}-\d{2}-\d{2}"),
+            to_date(col("order_date"), "yyyy-MM-dd")
+        ).otherwise(None).alias("order_date"),
         col("total_amount").cast(DoubleType()).alias("total_amount"),
         col("status").cast(StringType()).alias("order_status")
     ).na.drop(subset=["order_id", "customer_id", "order_date", "total_amount"])
 
     # Assert: Expected cleaned data
     expected_data = [
-        (1, 101, "2023-01-01", 100.00, "COMPLETED"),
-        (2, 102, "2023-01-02", 50.50, "PENDING")
+        (1, 101, date(2023,1,1), 100.00, "COMPLETED"),
+        (2, 102, date(2023,1,2), 50.50, "PENDING")
     ]
     expected_schema = StructType([
         StructField("order_id", IntegerType(), True),
@@ -150,8 +154,8 @@ def test_silver_layer_sales_join(spark):
 
     # Assert: Expected output
     expected_data = [
-        (1, 101, "John", "Doe", "john@example.com", "USA", "2022-01-01", "2023-01-01", "COMPLETED", 100.00, 100.00, 2, 3, False),
-        (2, 102, "Jane", "Smith", "jane@example.com", "CAN", "2022-02-01", "2023-01-02", "PENDING", 50.00, 50.00, 1, 1, False)
+        (1, 101, "John", "Doe", "john@example.com", "USA", date(2022,1,1), date(2023,1,1), "COMPLETED", 100.00, 100.00, 2, 3, False),
+        (2, 102, "Jane", "Smith", "jane@example.com", "CAN", date(2022,2,1), date(2023,1,2), "PENDING", 50.00, 50.00, 1, 1, False)
     ]
     expected_schema = StructType([
         StructField("order_id", IntegerType(), True),
