@@ -49,7 +49,7 @@ jobs:
 
       - name: Run Pytest for Spark
         run: |
-          pytest tests/spark/
+          pytest tests/Spark/
 
       - name: Configure dbt profiles.yml
         env:
