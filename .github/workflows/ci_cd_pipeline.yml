@@ -86,6 +86,19 @@ jobs:
     needs: build_and_test
     if: github.ref == 'refs/heads/main' # Deploy only on merge to main
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Authenticate with Databricks
+        env:
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS }}
+        run: |
+          databricks configure --token $DATABRICKS_TOKEN
+
+      - name: Deploy notebooks to Databricks
+        run: |
+          databricks workspace import_dir . /Users/yaswanthreddyvarikuti66@gmail.com/ecommerce-etl-pipeline/databricks_notebooks
+
       - uses: actions/checkout@v4
 
       - name: Authenticate GCP Service Account
