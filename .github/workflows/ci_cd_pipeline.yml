@@ -99,7 +99,12 @@ jobs:
           python-version: '3.10'
 
       - name: Setup Databricks
-        uses: databricks/setup-cli@main
+        run: |
+          pip install databricks-cli
+          echo "${{ secrets.DATABRICKS }}" > ~/.databrickscfg
+          echo "[DEFAULT]" >> ~/.databrickscfg
+          echo "host = ${{ secrets.DB_HOST }}" >> ~/.databrickscfg
+          echo "token = ${{ secrets.DATABRICKS }}" >> ~/.databrickscfg
 
       - name: Deploy notebooks to Databricks
         run: |
