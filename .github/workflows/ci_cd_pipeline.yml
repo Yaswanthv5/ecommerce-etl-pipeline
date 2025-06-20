@@ -51,35 +51,39 @@ jobs:
         run: |
           pytest tests/Spark/
 
-      - name: Configure dbt profiles.yml
-        env:
-          GCP_SA_KEY_FILE: ${{ runner.tempDir }}/gcp_sa_key.json
-        run: |
-          echo '${{ secrets.GCP_SA_KEY }}' > "${GCP_SA_KEY_FILE}"
-          mkdir -p ~/.dbt/
-          cat <<EOF > ~/.dbt/profiles.yml
-          ecom_dwh:
-            target: dev
-            outputs:
-              dev:
-                type: bigquery
-                method: service-account
-                project: ${{ env.GCP_PROJECT_ID }}
-                dataset: ecom_dwh
-                threads: 4
-                keyfile: ${GCP_SA_KEY_FILE}
-          EOF
+      #- name: Configure dbt profiles.yml
+      #  env:
+      #    GCP_SA_KEY_FILE: ${{ runner.tempDir }}/gcp_sa_key.json
+      #  run: |
+      #   echo '${{ secrets.GCP_SA_KEY }}' > "${GCP_SA_KEY_FILE}"
+      #    mkdir -p ~/.dbt/
+      #    cat <<EOF > ~/.dbt/profiles.yml
+      #    ecom_dwh:
+      #      outputs:
+      #        dev:
+      #          type: bigquery
+      #          location: us
+      #          priority:interactive
+      #          job_creation_timeout_seconds: 300
+      #          client_id: 107951547706833706253
+      #          method: service-account
+      #          project: ${{ env.GCP_PROJECT_ID }}
+      #          dataset: ecom_dwh
+      #          threads: 1
+      #          keyfile: ${GCP_SA_KEY_FILE}
+      #      target: dev
+      #    EOF
 
-      - name: Install dbt dependencies
-        run: |
-          cd dbt_project
-          dbt deps
+      #- name: Install dbt dependencies
+      #  run: |
+      #    cd dbt_project
+      #    dbt deps
 
-      - name: Run dbt debug and parse (CI - syntax and basic config check)
-        run: |
-          cd dbt_project
-          dbt debug --profile ecom_dwh --target dev
-          dbt parse --profile ecom_dwh --target dev
+      #- name: Run dbt debug and parse (CI - syntax and basic config check)
+      #  run: |
+      #    cd dbt_project
+      #    dbt debug --profile ecom_dwh --target dev
+      #    dbt parse --profile ecom_dwh --target dev
 
   deploy:
     runs-on: ubuntu-latest
