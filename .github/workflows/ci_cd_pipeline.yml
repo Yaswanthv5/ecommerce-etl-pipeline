@@ -105,6 +105,7 @@ jobs:
         run: |
           databricks workspace import-dir ./databricks_notebooks /Users/yaswanthreddyvarikuti66@gmail.com/ecommerce-etl-pipeline/ --overwrite
         env:
+          DATABRICKS_HOST: ${{ secrets.DB_HOST }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID}}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS }}
 
