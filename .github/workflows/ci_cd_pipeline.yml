@@ -103,7 +103,8 @@ jobs:
 
       - name: Deploy notebooks to Databricks
         run: |
-          databricks workspace import-dir ./databricks_notebooks /Users/yaswanthreddyvarikuti66@gmail.com/ecommerce-etl-pipeline/ --overwrite
+          cat ~/.databrickscfg
+          databricks workspace import-dir ./databricks_notebooks /Users/7ca1009c-bcbe-4fd4-81b8-e475f6b731be/ --overwrite
         env:
           DATABRICKS_HOST: ${{ secrets.DB_HOST }}
           DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID}}
