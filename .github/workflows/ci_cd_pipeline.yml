@@ -91,7 +91,7 @@ jobs:
     if: github.ref == 'refs/heads/main' # Deploy only on merge to main
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -99,18 +99,14 @@ jobs:
           python-version: '3.10'
 
       - name: Setup Databricks
-        run: |
-          pip install databricks-cli
-          echo "${{ secrets.DATABRICKS }}" > ~/.databrickscfg
-          echo "[DEFAULT]" >> ~/.databrickscfg
-          echo "host = ${{ secrets.DB_HOST }}" >> ~/.databrickscfg
-          echo "token = ${{ secrets.DATABRICKS }}" >> ~/.databrickscfg
+        uses: databricks/setup-cli@main
 
       - name: Deploy notebooks to Databricks
         run: |
-          databricks workspace import_dir ./databricks_notebooks /Users/yaswanthreddyvarikuti66@gmail.com/ecommerce-etl-pipeline/ --overwrite
+          databricks workspace import-dir ./databricks_notebooks /Users/yaswanthreddyvarikuti66@gmail.com/ecommerce-etl-pipeline/ --overwrite
         env:
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID}}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS }}
 
       - uses: actions/checkout@v4
 
@@ -127,26 +123,26 @@ jobs:
         run: |
           gsutil rsync -r spark_scripts/ gs://${{ env.GCS_SPARK_SCRIPTS_BUCKET }}/spark_scripts/
 
-      - name: Configure dbt profiles.yml for deployment
-        env:
-          GCP_SA_KEY_FILE: ${{ runner.tempDir }}/gcp_sa_key.json
-        run: |
-          echo '${{ secrets.GCP_SA_KEY }}' > "${GCP_SA_KEY_FILE}"
-          mkdir -p ~/.dbt/
-          cat <<EOF > ~/.dbt/profiles.yml
-          ecom_dwh:
-            target: prod # You might have a separate 'prod' target with different dataset
-            outputs:
-              prod:
-                type: bigquery
-                method: service-account
-                project: ${{ env.GCP_PROJECT_ID }}
-                dataset: ecom_data_warehouse # Or ecom_data_warehouse_prod
-                threads: 4
-                keyfile: ${GCP_SA_KEY_FILE}
-          EOF
+      #- name: Configure dbt profiles.yml for deployment
+      #  env:
+      #    GCP_SA_KEY_FILE: ${{ runner.tempDir }}/gcp_sa_key.json
+      #  run: |
+      #    echo '${{ secrets.GCP_SA_KEY }}' > "${GCP_SA_KEY_FILE}"
+      #    mkdir -p ~/.dbt/
+      #    cat <<EOF > ~/.dbt/profiles.yml
+      #    ecom_dwh:
+      #      target: prod # You might have a separate 'prod' target with different dataset
+      #      outputs:
+      #        prod:
+      #          type: bigquery
+      #          method: service-account
+      #          project: ${{ env.GCP_PROJECT_ID }}
+      #          dataset: ecom_data_warehouse # Or ecom_data_warehouse_prod
+      #         threads: 4
+      #          keyfile: ${GCP_SA_KEY_FILE}
+      #   EOF
 
-      - name: Run dbt build (run and test) on main merge
-        run: |
-          cd dbt_project
-          dbt build --profile ecom_dwh --target prod # Use 'build' to run and test
+      #- name: Run dbt build (run and test) on main merge
+      #  run: |
+      #    cd dbt_project
+      #    dbt build --profile ecom_dwh --target prod # Use 'build' to run and test
