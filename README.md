@@ -38,7 +38,7 @@
         </ul>
         <h2 id="3-architecture" class="text-2xl mt-8 pb-1 border-b border-gray-200">3. Architecture</h2>
         <p>The pipeline follows a layered architecture to ensure data quality, consistency, and reusability.</p>
-        <pre class="diagram"><code>+------------+       +-------------------+       +-----------------------+       +----------------------+
+        <pre class="diagram"><code>+-------------+       +-------------------+       +-----------------------+       +-----------------------+
 |             |       | Databricks DLT    |       | Spark Job (Databricks)|       |                       |
 | Raw Data    |-----> | (Bronze & Silver) |-----> | (Analytic Layer)      |-----> | GCS Analytic Layer    |
 | (GCS Bucket)|       | (Delta Lake)      |       | (CDC/SCD Type 2)      |       | (Partitioned Parquet) |
@@ -281,6 +281,7 @@ docker compose up -d # Start Airflow services in detached mode
                 </ul>
             </li>
         </ol>
+<code><img src='images/ecom_data_pipeline_final-graph.png'>
         <h2 id="5-key-technologies" class="text-2xl mt-8 pb-1 border-b border-gray-200">5. Key Technologies</h2>
         <ul>
             <li><strong>Apache Airflow:</strong> Workflow orchestration.</li>
