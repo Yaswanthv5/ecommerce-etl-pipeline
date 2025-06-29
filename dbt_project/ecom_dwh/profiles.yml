@@ -1,10 +1,10 @@
 ecom_dwh:
   outputs:
     dev:
-      dataset: ecom_dwh
+      dataset: ecom_dwh_dbt
       job_execution_timeout_seconds: 100
       job_retries: 1
-      keyfile: W:\work\Projects\real-time_DE_project\ecommerce-etl-pipeline\databricks_notebooks\clientLibraryConfig-databricks-gcp-provider.json
+      keyfile: ./gcp_sa_key.json
       location: US
       method: service-account
       priority: interactive

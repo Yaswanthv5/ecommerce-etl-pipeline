@@ -17,6 +17,7 @@ on:
       - 'dbt_project/**'
       - 'dags/**'
       - 'tests/**'
+      - 'airflow_env/**'
 
 env:
   GCP_PROJECT_ID: batch-processing-de # Replace with your GCP Project ID
@@ -120,9 +121,6 @@ jobs:
         run: |
           gsutil rsync -r dags/ gs://${{ env.GCS_DAGS_BUCKET }}/dags/
 
-      - name: Upload Spark Scripts to GCS
-        run: |
-          gsutil rsync -r spark_scripts/ gs://${{ env.GCS_SPARK_SCRIPTS_BUCKET }}/spark_scripts/
 
       #- name: Configure dbt profiles.yml for deployment
       #  env:

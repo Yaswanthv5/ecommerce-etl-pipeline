@@ -2,10 +2,10 @@
 version: 2
 
 sources:
-  - name: ecom_data_warehouse
-    database: batch-processing-de
-    schema: ecom_dwh
+  - name: ecom_dwh
+    #database: batch-processing-de
+    database: ecom_dwh
     tables:
-      - name: sales_fact
-      - name: products_dim
-      - name: customers_dim # Assuming this is also loaded by Spark
+      - name: fact_daily_sales
+      - name: dim_products
+      - name: dim_customers # Assuming this is also loaded by Spark

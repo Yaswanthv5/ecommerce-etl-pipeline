@@ -1,0 +1,18 @@
+# requirements.txt inside your-ecom-data-pipeline/airflow_env/
+apache-airflow-providers-google
+apache-airflow-providers-databricks
+# If you plan to run dbt directly on an Airflow worker:
+dbt-bigquery
+pandas
+requests
+databricks-sql-connector
+databricks-sqlalchemy
+# databricks-cli
+git
+# aiohttp
+mergedeep
+pyarrow
+google-cloud-storage
+google-cloud-bigquery
+# If you have specific versions for pyspark, add them here
+# pyspark==3.5.1

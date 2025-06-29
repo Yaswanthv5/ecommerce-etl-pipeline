@@ -8,4 +8,4 @@ SELECT
     CAST(country AS STRING) AS customer_country,
     CAST(processed_timestamp AS TIMESTAMP) AS spark_processed_timestamp
 FROM
-    {{ source('ecom_data_warehouse', 'customers_dim') }} -- Assuming Spark loads this
+    {{ source('ecom_dwh', 'dim_customers') }} -- Assuming Spark loads this

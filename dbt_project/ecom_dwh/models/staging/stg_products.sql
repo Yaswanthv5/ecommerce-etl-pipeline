@@ -6,4 +6,4 @@ SELECT
     CAST(product_price AS NUMERIC) AS product_price,
     CAST(processed_timestamp AS TIMESTAMP) AS spark_processed_timestamp
 FROM
-    {{ source('ecom_data_warehouse', 'products_dim') }}
+    {{ source('ecom_dwh', 'dim_products') }}

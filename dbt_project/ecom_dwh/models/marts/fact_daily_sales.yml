@@ -32,5 +32,5 @@ models:
       - dbt_utils.at_least_one_row # Ensure the table is not empty
       - dbt_utils.recency:
           field: order_date
-          date_grain: day
+          datepart: day
           interval: 2 # Ensure data is recent (e.g., within 2 days)
