@@ -21,7 +21,7 @@ on:
 
 env:
   GCP_PROJECT_ID: batch-processing-de # Replace with your GCP Project ID
-  GCS_DAGS_BUCKET: gs://batch-processing-de_dags/ # Create a GCS bucket for Airflow DAGs
+  GCS_DAGS_BUCKET: batch-processing-de_dags/ # Create a GCS bucket for Airflow DAGs
   GCS_SPARK_SCRIPTS_BUCKET: gs://batch-processing-de_databricks/ # Create a GCS bucket for Spark scripts/jars
   # You'll need to set up GCP_SA_KEY as a GitHub Secret
   # Go to your GitHub repo settings -> Secrets -> Actions -> New repository secret
