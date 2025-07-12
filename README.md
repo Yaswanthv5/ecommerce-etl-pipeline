@@ -38,6 +38,7 @@
         </ul>
         <h2 id="3-architecture" class="text-2xl mt-8 pb-1 border-b border-gray-200">3. Architecture</h2>
         <p>The pipeline follows a layered architecture to ensure data quality, consistency, and reusability.</p>
+        <img src="images/ecom_pipeline.gif" alt="images/ecom_pipeline.gif">
         <pre class="diagram"><code>+-------------+       +-------------------+       +-----------------------+       +-----------------------+
 |             |       | Databricks DLT    |       | Spark Job (Databricks)|       |                       |
 | Raw Data    |-----> | (Bronze & Silver) |-----> | (Analytic Layer)      |-----> | GCS Analytic Layer    |
@@ -143,53 +144,42 @@ cd your-ecom-data-pipeline
                         <p><em>(Adjust Airflow version if needed)</em></p>
                     </li>
                     <li><strong>Create <code>.env</code> file:</strong>
-                        <pre><code>touch .env
-</code></pre>
+                        <pre><code>touch .env</code></pre>
                         <p>Add the following content. <strong>For <code>AIRFLOW_UID</code>, run <code>id -u</code> on Linux/macOS to get your user ID. On Windows (WSL2), <code>0</code> often works best.</strong></p>
                         <pre><code># .env file inside your-ecom-data-pipeline/airflow_env/
-AIRFLOW_UID=50000
-_AIRFLOW_WWW_USER_USERNAME=airflow
-_AIRFLOW_WWW_USER_PASSWORD=airflow
-AIRFLOW_IMAGE_NAME=apache/airflow:2.9.0-python3.9
-
-This points to the parent directory of 'airflow_env/', which is 'your-ecom-data-pipeline/'
-AIRFLOW_PROJ_DIR=..
-</code></pre>
+                            AIRFLOW_UID=50000
+                            _AIRFLOW_WWW_USER_USERNAME=airflow
+                            _AIRFLOW_WWW_USER_PASSWORD=airflow
+                            AIRFLOW_IMAGE_NAME=apache/airflow:2.9.0-python3.9
+                            This points to the parent directory of 'airflow_env/', which is 'your-ecom-data-pipeline/'
+                            AIRFLOW_PROJ_DIR=..
+                        </code></pre>
                     </li>
                     <li><strong>Create <code>requirements.txt</code>:</strong>
-                        <pre><code>touch requirements.txt
-</code></pre>
+                        <pre><code>touch requirements.txt</code></pre>
                         <p>Add the necessary Airflow providers and other Python libraries:</p>
                         <pre><code># requirements.txt inside your-ecom-data-pipeline/airflow_env/
-apache-airflow-providers-google
-apache-airflow-providers-databricks
-dbt-bigquery # If you plan to run dbt directly on the Airflow worker
-</code></pre>
+                            apache-airflow-providers-google
+                            apache-airflow-providers-databricks
+                            dbt-bigquery # If you plan to run dbt directly on the Airflow worker
+                        </code></pre>
                     </li>
                     <li><strong>Create <code>Dockerfile</code>:</strong>
-                        <pre><code>touch Dockerfile
-</code></pre>
+                        <pre><code>touch Dockerfile</code></pre>
                         <p>Add the following content to customize your Airflow image:</p>
                         <pre><code># your-ecom-data-pipeline/airflow_env/Dockerfile
-FROM apache/airflow:2.9.0-python3.9 # Match your AIRFLOW_IMAGE_NAME from .env
-
-USER root
-
-<code></pre>
-Install any necessary system-level dependencies (e.g., git if dbt pulls from Git)
-For a minimal setup, you might not need additional system packages.
-RUN apt-get update && \
-     apt-get install -y --no-install-recommends \
-         git \
-  && apt-get clean && rm -rf /var/lib/apt/lists/*
-</code></pre>
-
-COPY requirements.txt /requirements.txt
-
-RUN pip install --no-cache-dir -r /requirements.txt
-
-USER airflow
-</code></pre>
+                            FROM apache/airflow:2.9.0-python3.9 # Match your AIRFLOW_IMAGE_NAME from .env                            
+                            USER root                            
+                            Install any necessary system-level dependencies (e.g., git if dbt pulls from Git)
+                            For a minimal setup, you might not need additional system packages.
+                            RUN apt-get update && \
+                            apt-get install -y --no-install-recommends \
+                            git \
+                            && apt-get clean && rm -rf /var/lib/apt/lists/*
+                            COPY requirements.txt /requirements.txt
+                            RUN pip install --no-cache-dir -r /requirements.txt                            
+                            USER airflow
+                        </code></pre>
                     </li>
                     <li><strong>Modify <code>docker-compose.yaml</code>:</strong> Open the <code>docker-compose.yaml</code> file in <code>airflow_env/</code>.
                         <ul>
@@ -281,7 +271,7 @@ docker compose up -d # Start Airflow services in detached mode
                 </ul>
             </li>
         </ol>
-<code><img src='images/ecom_data_pipeline_final-graph.png'>
+<img src='images/ecom_data_pipeline_final-graph.png' alt='images/ecom_data_pipeline_final-graph'>
         <h2 id="5-key-technologies" class="text-2xl mt-8 pb-1 border-b border-gray-200">5. Key Technologies</h2>
         <ul>
             <li><strong>Apache Airflow:</strong> Workflow orchestration.</li>
@@ -300,5 +290,5 @@ docker compose up -d # Start Airflow services in detached mode
         <p>Feel free to contribute to this project by opening issues or submitting pull requests.</p>
         <h2 id="8-license" class="text-2xl mt-8 pb-1 border-b border-gray-200">8. License</h2>
         <p>This project is licensed under the MIT License - see the <code>LICENSE</code> file for details.</p>
-    </div>
+</div>
 </body>
